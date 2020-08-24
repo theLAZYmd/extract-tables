@@ -11,8 +11,8 @@ from decimal import Decimal
 from pathlib import Path
 import itertools
 
-fromdir = './htmls/Canadian/'
-outdir = './xlsx/'
+fromdir = 'temp/'
+outdir = 'temp/'
 
 Path(outdir).mkdir(parents=True, exist_ok=True)
 
@@ -141,7 +141,7 @@ class Extract:
             else:
                 return t
             b = b.find_previous('b')
-        self.name = table.find_previous('b').text.strip()
+        return ''
 
 
     ## Header
@@ -150,7 +150,8 @@ class Extract:
         for i, row in enumerate(rows):
             cells = row.select('th, td')
             values = [x.text.strip() for x in cells if x.text.strip()]
-            if len(values) and all([regexes['year'].search(v) and len(v) < 15 for v in values]):
+            possibleDates = [regexes['year'].search(v) for v in values]
+            if len(values) >= 2 and all(possibleDates):
                 return i
         return -1
 
@@ -173,8 +174,8 @@ for i, f in enumerate(queue):
             if meta.data is None:
                 continue
             meta.source = title + (', p. ' + str(meta.page) if meta.page else '')
-            compiled[str(j)] = meta
-            print('-- Converted: Table {} out of a possible {}'.format(j, len(tables)))   
+            compiled[str(j + 1)] = meta
+            print('-- Converted: Table {} out of a possible {}'.format(j + 1, len(tables)))   
         xlsx(compiled, outDir=outDir, companyName=companyName, workbookName=title) 
         print('Completed: {}%.'.format(int((i + 1) / len(queue) * 100)))
     except Exception as e:

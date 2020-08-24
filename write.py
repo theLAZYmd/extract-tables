@@ -9,8 +9,12 @@ import pandas.io.formats.excel
 
 def xlsx(tables={}, companyName='', header='', source='', start_row=7, start_column=1, colour='#44556a', insertLogo='./FTI.jpg', workbookName='', outDir='', date_format='yyyy-mm-dd', other_headers=False):
 	# pylint: disable=abstract-class-instantiated
-    f = pd.ExcelWriter(outDir.replace('/', '\\') + workbookName + '.xlsx', engine='xlsxwriter')
+    outLocation = outDir.replace('/', '\\') + workbookName + '.xlsx'
+    print(outLocation)
+    f = pd.ExcelWriter(outLocation, engine='xlsxwriter')
 	
+    workbook = f.book
+
     def capitalize(s):
         s = str(s)
         # Format empty strings as Other here too, why not
@@ -41,7 +45,6 @@ def xlsx(tables={}, companyName='', header='', source='', start_row=7, start_col
             startrow=start_row,
             index=False
         )
-        workbook = f.book
         worksheet = f.sheets[sheet_name]
 
         std = { 'border': 0, 'bg_color': 'white', 'num_format': '#,##0;[Black](#,##0)' }
@@ -93,5 +96,6 @@ def xlsx(tables={}, companyName='', header='', source='', start_row=7, start_col
         #for i in range(0, max(start_row + 1 + len(df) + 10, 30)):
         #    worksheet.set_row(i, None, std_fmt)
 
-    workbook.close()
-    print('Wrote to: {}\\{}{}.xlsx'.format(os.getcwd(), outDir.replace('/', '\\'), workbookName))
+    if workbook.close:
+        workbook.close()
+        print('Wrote to: {}'.format(outLocation))
